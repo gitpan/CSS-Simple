@@ -1,4 +1,4 @@
-# $Id: Simple.pm 2698 2010-09-01 18:42:40Z kamelkev $
+# $Id: Simple.pm 2702 2010-09-01 21:52:37Z kamelkev $
 #
 # Copyright 2009 MailerMailer, LLC - http://www.mailermailer.com
 #
@@ -11,7 +11,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d", q$Revision: 2698 $ =~ /(\d+)/;
+$VERSION = sprintf "%d", q$Revision: 2702 $ =~ /(\d+)/;
 
 use Carp;
 use Tie::IxHash;
@@ -234,6 +234,23 @@ sub write {
 
 =pod
 
+=item get_selectors( params )
+
+Get an array of selectors that represents an inclusive list of all selectors
+stored.
+
+=cut
+
+sub get_selectors {
+  my ($self,$params) = @_;
+
+  $self->_check_object();
+
+  return($self->_get_ordered()->Keys());
+}
+
+=pod
+
 =item get_properties( params )
 
 Get a hash that represents the various properties for this particular selector
@@ -272,6 +289,45 @@ sub check_selector {
   $self->_check_object();
 
   return($self->_get_ordered()->EXISTS($$params{selector}));
+}
+
+=pod
+
+=item modify_selector( params )
+
+Modify an existing selector
+ 
+Modifying a selector maintains the existing selectivity of the rule with relation to the 
+original stylesheet. If you want to ignore that selectivity, delete the element and re-add
+it to CSS::Simple
+
+This method requires you to pass in a params hash that contains scalar
+css data. For example:
+
+$self->modify_selector({selector => '.foo', new_selector => '.bar' });
+
+=cut
+
+sub modify_selector {
+  my ($self,$params) = @_;
+
+  $self->_check_object();
+
+  #if the selector is found, replace the selector
+  if ($self->check_selector({selector => $$params{selector}})) {
+    #we probably want to be doing this explicitely
+    my ($index) = $self->_get_ordered()->Indices( $$params{selector} );
+    my $properties = $self->get_properties({selector => $$params{selector}});
+
+    $self->_get_ordered()->Replace($index,$properties,$$params{new_selector});
+  }
+  #otherwise new element, stick it onto the end of the rulesets
+  else {
+    #add a selector, there was nothing to replace
+    $self->add_selector({selector => $$params{new_selector}, properties => {}});
+  }
+
+  return();
 }
 
 =pod
@@ -325,7 +381,7 @@ is just translated to an add_selector call, thus creating the rule at the end of
 This method requires you to pass in a params hash that contains scalar
 css data. For example:
 
-$self->add_selector({selector => '.foo', properties => {color => 'red' }});
+$self->add_properties({selector => '.foo', properties => {color => 'red' }});
 
 =cut
 
