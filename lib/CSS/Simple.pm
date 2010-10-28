@@ -1,4 +1,4 @@
-# $Id: Simple.pm 2702 2010-09-01 21:52:37Z kamelkev $
+# $Id: Simple.pm 2874 2010-10-28 01:05:14Z kamelkev $
 #
 # Copyright 2009 MailerMailer, LLC - http://www.mailermailer.com
 #
@@ -11,7 +11,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d", q$Revision: 2702 $ =~ /(\d+)/;
+$VERSION = sprintf "%d", q$Revision: 2874 $ =~ /(\d+)/;
 
 use Carp;
 use Tie::IxHash;
@@ -38,8 +38,12 @@ CSS::Simple - Interface through which to read/write/manipulate CSS files while r
 =head1 DESCRIPTION
 
 Class for reading, manipulating and writing CSS. Unlike other CSS classes on CPAN this particular module
-focuses on respecting the cascade order while providing a common sense API through which to manipulate the
-parsed rules.
+focuses on respecting the order of selectors while providing a common sense API through which to manipulate the
+rules.
+
+Please note that while ordering is respected, the exact order of selectors may change. I.e. the rules
+implied by the styles and their ordering will not change, but the actual ordering of the styles may shift around.
+See the read method for more information.
 
 =head1 CONSTRUCTOR
 
@@ -111,6 +115,13 @@ sub read_file {
 
 Reads css data and parses it. The intermediate data is stored in class variables.
 
+Compound selectors (i.e. "a, span") are split apart during parsing and stored
+separately, so the output of any given stylesheet may not match the output 100%, but the 
+rules themselves should apply as expected.
+
+Ordering of selectors may shift if the same selector is seen twice within the stylesheet.
+The precendence for any given selector is the last time it was seen by the parser.
+
 This method requires you to pass in a params hash that contains scalar
 css data. For example:
 
@@ -140,24 +151,44 @@ sub read {
     }
 
     # Split in such a way as to support grouped styles
-    my $selector = $1;
+    my $rule = $1;
     my $props = $2;
 
-    $selector =~ s/\s{2,}/ /g;
+    $rule =~ s/\s{2,}/ /g;
 
     # Split into properties
     my $properties = {};
     foreach ( grep { /\S/ } split /\;/, $props ) {
+      if ((/^\s*[\*\-\_]/) || (/\\/)) {
+        next; # skip over browser specific properties
+      }
+
       unless ( /^\s*([\w._-]+)\s*:\s*(.*?)\s*$/ ) {
-        croak "Invalid or unexpected property '$_' in style '$selector'";
+        croak "Invalid or unexpected property '$_' in style '$rule'";
       }
 
       #store the property for later
       $$properties{lc $1} = $2;
     }
-    
-    #store the properties within this selector
-    $self->add_selector({selector => $selector, properties => $properties});
+
+    my @selectors = split /,/, $rule; # break the rule into the component selector(s)
+
+    #apply the found rules to each selector
+    foreach my $selector (@selectors) {
+      $selector =~ s/^\s+|\s+$//g;
+      if ($self->check_selector({selector => $selector})) { #check if we already exist
+        my $old_properties = $self->get_properties({selector => $selector});
+        $self->delete_selector({selector => $selector});
+
+        my %merged = (%$old_properties, %$properties);
+
+        $self->add_selector({selector => $selector, properties => \%merged});
+      }
+      else {
+        #store the properties within this selector
+        $self->add_selector({selector => $selector, properties => $properties});
+      }
+    }
   }
 
   return();
@@ -213,11 +244,13 @@ sub write {
     #grab the properties that make up this particular selector
     my $properties = $self->get_properties({selector => $selector});
 
-    $contents .= "$selector {\n";
-    foreach my $property ( sort keys %{ $properties } ) {
-      $contents .= "\t" . lc($property) . ": ".$properties->{$property}. ";\n";
+    if (keys(%{$properties})) { # only output if the selector has properties
+      $contents .= "$selector {\n";
+      foreach my $property ( sort keys %{ $properties } ) {
+        $contents .= "\t" . lc($property) . ": ".$properties->{$property}. ";\n";
+      }
+      $contents .= "}\n";
     }
-    $contents .= "}\n";
   }
 
   return $contents;
