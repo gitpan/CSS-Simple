@@ -29,6 +29,9 @@ CONSTRUCTOR
         Instantiates the CSS::Simple object. Sets up class variables that
         are used during file parsing/processing.
 
+        suppress_errors (optional). Boolean value to indicate whether fatal
+        errors should occur during parse failures.
+
 METHODS
     read_file( params )
         Opens and reads a CSS file, then subsequently performs the parsing

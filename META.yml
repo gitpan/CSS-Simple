@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               CSS-Simple
-version:            2874
+version:            3024
 abstract:           Interface through which to read/write/manipulate CSS files while respecting the cascade order
 author:
     - Kevin Kamel <kamelkev@mailermailer.com>
