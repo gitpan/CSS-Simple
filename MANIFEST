@@ -5,6 +5,7 @@ Makefile.PL
 README
 t/basic.t
 t/create.t
+t/fail.t
 t/hacks.t
 t/modify.t
 META.yml                                 Module meta-data (added by MakeMaker)

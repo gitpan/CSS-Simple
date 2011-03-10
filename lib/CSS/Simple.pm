@@ -1,6 +1,6 @@
-# $Id: Simple.pm 3024 2011-03-05 00:53:15Z kamelkev $
+# $Id: Simple.pm 3044 2011-03-10 19:59:50Z kamelkev $
 #
-# Copyright 2009 MailerMailer, LLC - http://www.mailermailer.com
+# Copyright 2011 MailerMailer, LLC - http://www.mailermailer.com
 #
 # Based in large part on the CSS::Tiny CPAN Module
 # http://search.cpan.org/~adamk/CSS-Tiny/
@@ -11,7 +11,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d", q$Revision: 3024 $ =~ /(\d+)/;
+$VERSION = sprintf "%d", q$Revision: 3044 $ =~ /(\d+)/;
 
 use Tie::IxHash;
 use Storable qw(dclone);
