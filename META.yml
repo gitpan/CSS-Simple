@@ -1,23 +1,15 @@
 --- #YAML:1.0
-name:               CSS-Simple
-version:            3044
-abstract:           Interface through which to read/write/manipulate CSS files while respecting the cascade order
-author:
+name:                CSS-Simple
+version:             3211
+abstract:            Interface through which to read/write/manipulate CSS files while respecting the cascade order
+license:             perl
+author:              
     - Kevin Kamel <kamelkev@mailermailer.com>
-license:            perl
-distribution_type:  module
-configure_requires:
-    ExtUtils::MakeMaker:  0
-build_requires:
-    ExtUtils::MakeMaker:  0
-requires:
-    Carp:         0
-    Tie::IxHash:  0
-no_index:
-    directory:
-        - t
-        - inc
-generated_by:       ExtUtils::MakeMaker version 6.55_02
+generated_by:        ExtUtils::MakeMaker version 6.42
+distribution_type:   module
+requires:     
+    Carp:                          0
+    Tie::IxHash:                   0
 meta-spec:
-    url:      http://module-build.sourceforge.net/META-spec-v1.4.html
-    version:  1.4
+    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
+    version: 1.3

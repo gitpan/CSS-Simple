@@ -8,4 +8,5 @@ t/create.t
 t/fail.t
 t/hacks.t
 t/modify.t
+t/pod.t
 META.yml                                 Module meta-data (added by MakeMaker)

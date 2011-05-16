@@ -29,7 +29,7 @@ CONSTRUCTOR
         Instantiates the CSS::Simple object. Sets up class variables that
         are used during file parsing/processing.
 
-        suppress_errors (optional). Boolean value to indicate whether fatal
+        warns_as_errors (optional). Boolean value to indicate whether fatal
         errors should occur during parse failures.
 
 METHODS
@@ -70,6 +70,12 @@ METHODS
 
     write()
         Write the parsed and manipulated CSS out to a scalar and return it
+
+    content_warnings()
+        Return back any warnings thrown while parsing a given block of css
+
+        Note: content warnings are initialized at read time. In order to
+        receive back content feedback you must perform read() first.
 
     get_selectors( params )
         Get an array of selectors that represents an inclusive list of all
