@@ -30,7 +30,7 @@ CSS::Simple - Interface through which to read/write/manipulate CSS files while r
 
  my $css = new CSS::Simple();
 
- $css->read({ filename => 'input.css' });
+ $css->read_file({ filename => 'input.css' });
 
  #perform manipulations...
 
@@ -53,7 +53,7 @@ BEGIN {
 
   #generate all the getter/setter we need
   foreach my $member (@{$members}) {
-    no strict 'refs';                                                                                
+    no strict 'refs';
 
     *{'_' . $member} = sub {
       my ($self,$value) = @_;
@@ -135,6 +135,7 @@ sub read_file {
   my $css = do { local( $/ ) ; <FILE> } ;
 
   $self->read({css => $css});
+  close FILE;
 
   return();
 }
@@ -146,7 +147,7 @@ sub read_file {
 Reads css data and parses it. The intermediate data is stored in class variables.
 
 Compound selectors (i.e. "a, span") are split apart during parsing and stored
-separately, so the output of any given stylesheet may not match the output 100%, but the 
+separately, so the output of any given stylesheet may not match the output 100%, but the
 rules themselves should apply as expected.
 
 Ordering of selectors may shift if the same selector is seen twice within the stylesheet.
@@ -196,10 +197,10 @@ sub read {
 
         # skip over browser specific properties
         if ((/^\s*[\*\-\_]/) || (/\\/)) {
-          next; 
+          next;
         }
 
-        # check if properties are valid, reporting error as configured        
+        # check if properties are valid, reporting error as configured
         unless ( /^\s*([\w._-]+)\s*:\s*(.*?)\s*$/ ) {
           $self->_report_warning({ info => "Invalid or unexpected property '$_' in style '$rule'" });
           next;
@@ -299,12 +300,12 @@ sub write {
 }
 
 =pod
-    
+
 =item content_warnings()
- 
+
 Return back any warnings thrown while parsing a given block of css
 
-Note: content warnings are initialized at read time. In order to 
+Note: content warnings are initialized at read time. In order to
 receive back content feedback you must perform read() first.
 
 =cut
@@ -392,8 +393,8 @@ sub check_selector {
 =item modify_selector( params )
 
 Modify an existing selector
- 
-Modifying a selector maintains the existing selectivity of the rule with relation to the 
+
+Modifying a selector maintains the existing selectivity of the rule with relation to the
 original stylesheet. If you want to ignore that selectivity, delete the element and re-add
 it to CSS::Simple
 
@@ -433,7 +434,7 @@ sub modify_selector {
 Add a selector and associated properties to the stored rulesets
 
 In the event that this particular ruleset already exists, invoking this method will
-simply replace the item. This is important - if you are modifying an existing rule 
+simply replace the item. This is important - if you are modifying an existing rule
 using this method than the previously existing selectivity will continue to persist.
 Delete the selector first if you want to ignore the previous selectivity.
 
@@ -555,7 +556,7 @@ sub delete_property {
 
   return();
 }
-  
+
 ####################################################################
 #                                                                  #
 # The following are all private methods and are not for normal use #
